@@ -13,3 +13,7 @@ patches:
     - op: replace
       path: /spec/ports/0/nodePort
       value: 30081
+
+images: 
+- name: public.ecr.aws/nginx/nginx
+  newTag: latest

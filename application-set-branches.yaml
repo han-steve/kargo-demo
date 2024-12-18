@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/refs/heads/main/argoproj.io/applicationset_v1alpha1.json
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kargo-demo
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+        - stage: dev
+          server: https://192.168.1.12
+        - stage: stage
+          server: https://192.168.1.13
+        - stage: prod
+          server: https://kubernetes.default.svc
+  template: 
+    metadata: 
+      name: kargo-demo-{{stage}}
+      annotations:
+        kargo.akuity.io/authorized-stage: kargo-demo:{{stage}}
+    spec: 
+      project: default
+      source: 
+        repoURL: https://github.com/han-steve/kargo-demo
+        targetRevision: stage/{{stage}}
+        path: .
+      destination: 
+        server: '{{server}}'
+        namespace: demo
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
