@@ -51,6 +51,8 @@ spec:
         value: ./src
       - name: outPath
         value: ./out
+      - name: appPath
+        value: apps/test-app
       steps:
       - uses: git-clone
         config: 
@@ -63,27 +65,27 @@ spec:
             path: ${{ vars.outPath }}
       - uses: git-clear
         config: 
-          path: ${{ vars.outPath }}
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
       - uses: kustomize-set-image
         as: update-image
         config: 
-          path: ${{ vars.srcPath }}/base
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
           images: 
           - image: ${{ vars.imageRepo }}
             tag: ${{ imageFrom(vars.imageRepo).Tag }}
       - uses: kustomize-build
         config: 
-          path: ${{ vars.srcPath }}/stages/${{ ctx.stage }}
-          outPath: ${{ vars.outPath }}/manifests.yaml
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
+          outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
       - uses: git-commit
         as: commit
         config:
-          path: ${{ vars.outPath }}
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
           messageFromSteps:
           - update-image
       - uses: git-push
         config: 
-          path: ${{ vars.outPath }}
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
       - uses: argocd-update
         config:
           apps:

@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: kargo-demo
+  name: ray-operator-crds
   namespace: argocd
 spec:
   generators:
@@ -16,20 +16,21 @@ spec:
           server: https://kubernetes.default.svc
   template: 
     metadata: 
-      name: kargo-demo-{{stage}}
+      name: ray-operator-crds-{{stage}}
       annotations:
-        kargo.akuity.io/authorized-stage: kargo-demo:{{stage}}
+        kargo.akuity.io/authorized-stage: ray-operator-crds:{{stage}}
     spec: 
       project: default
       source: 
-        repoURL: https://github.com/han-steve/kargo-demo
-        targetRevision: stage/{{stage}}
-        path: .
+        repoURL: https://github.com/ray-project/kuberay
+        targetRevision: v1.0.0-rc.0
+        path: helm-chart/kuberay-operator/crds
       destination: 
         server: '{{server}}'
-        namespace: demo
+        namespace: ray
       syncPolicy:
         automated:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - Replace=true
