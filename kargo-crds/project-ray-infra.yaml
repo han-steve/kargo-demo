@@ -15,15 +15,10 @@ spec:
       name: kuberay-operator
       # semverConstraint: ^1.0.0
       # discoveryLimit: 5
-  # - git: 
-  #     repoURL: https://github.com/han-steve/kargo-demo
-  #     branch: main
-  #     includePaths:
-  #     - apps/ray
-  # - image: 
-  #     repoURL: public.ecr.aws/nginx/nginx
-  #     semverConstraint: ^1.26.0
-  #     discoveryLimit: 5
+  - git: 
+      repoURL: https://github.com/han-steve/kargo-demo
+      includePaths:
+      - apps/ray
 --- 
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -72,7 +67,7 @@ spec:
             value: ${{ chartFrom(vars.chartRepo, "kuberay-operator").Version }}
       - uses: kustomize-build
         config: 
-          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/dev
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
           outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
       - uses: git-commit
         as: commit
@@ -86,7 +81,7 @@ spec:
       - uses: argocd-update
         config:
           apps:
-          - name: ray-infra-${{ ctx.stage }}
+          - name: ray-operator-${{ ctx.stage }}
             sources:
             - repoURL: ${{ vars.gitopsRepo }}
               desiredRevision: ${{ outputs.commit.commit }}
@@ -130,13 +125,13 @@ spec:
       - uses: git-clear
         config: 
           path: ${{ vars.outPath }}/${{ vars.appPath }}
-      - uses: kustomize-set-image
-        as: update-image
+      - uses: yaml-update
+        as: update-chart
         config: 
-          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
-          images: 
-          - image: ${{ vars.imageRepo }}
-            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base/kustomization.yaml
+          updates:
+          - key: helmCharts.0.version
+            value: ${{ chartFrom(vars.chartRepo, "kuberay-operator").Version }}
       - uses: kustomize-build
         config: 
           path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
@@ -153,7 +148,7 @@ spec:
       - uses: argocd-update
         config:
           apps:
-          - name: ray-infra-${{ ctx.stage }}
+          - name: ray-operator-${{ ctx.stage }}
             sources:
             - repoURL: ${{ vars.gitopsRepo }}
               desiredRevision: ${{ outputs.commit.commit }}
@@ -197,13 +192,13 @@ spec:
       - uses: git-clear
         config: 
           path: ${{ vars.outPath }}/${{ vars.appPath }}
-      - uses: kustomize-set-image
-        as: update-image
+      - uses: yaml-update
+        as: update-chart
         config: 
-          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
-          images: 
-          - image: ${{ vars.imageRepo }}
-            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base/kustomization.yaml
+          updates:
+          - key: helmCharts.0.version
+            value: ${{ chartFrom(vars.chartRepo, "kuberay-operator").Version }}
       - uses: kustomize-build
         config: 
           path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
@@ -215,12 +210,26 @@ spec:
           messageFromSteps:
           - update-image
       - uses: git-push
-        config: 
+        as: push
+        config:
           path: ${{ vars.outPath }}/${{ vars.appPath }}
+          generateTargetBranch: true
+      - uses: git-open-pr
+        as: open-pr
+        config: 
+          repoURL: ${{ vars.gitopsRepo}}
+          createTargetBranch: true
+          sourceBranch: ${{ outputs.push.branch }}
+          targetBranch: stage/${{ ctx.stage }}
+      - uses: git-wait-for-pr
+        as: wait-for-pr
+        config:
+          repoURL: ${{ vars.gitopsRepo }}
+          prNumber: ${{ outputs['open-pr'].prNumber }}
       - uses: argocd-update
         config:
           apps:
-          - name: ray-infra-${{ ctx.stage }}
+          - name: ray-operator-${{ ctx.stage }}
             sources:
             - repoURL: ${{ vars.gitopsRepo }}
               desiredRevision: ${{ outputs.commit.commit }}

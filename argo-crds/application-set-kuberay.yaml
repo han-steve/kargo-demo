@@ -55,7 +55,7 @@ spec:
     metadata: 
       name: ray-operator-{{stage}}
       annotations:
-        kargo.akuity.io/authorized-stage: ray-operator:{{stage}}
+        kargo.akuity.io/authorized-stage: ray-infra:{{stage}}
     spec: 
       project: default
       source: 

@@ -7,3 +7,8 @@ helmCharts:
   repo: https://ray-project.github.io/kuberay-helm/
   version: 1.1.0
   includeCRDs: false
+  valuesInline:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 300Mi
