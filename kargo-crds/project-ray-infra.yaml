@@ -152,6 +152,9 @@ spec:
             sources:
             - repoURL: ${{ vars.gitopsRepo }}
               desiredRevision: ${{ outputs.commit.commit }}
+  verification: 
+    analysisTemplates: 
+    - name: test-analysis
 --- 
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
