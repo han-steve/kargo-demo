@@ -1,0 +1,226 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Project
+metadata:
+  name: ray-infra
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata: 
+  name: ray-infra
+  namespace: ray-infra
+spec: 
+  subscriptions:
+  - chart: 
+      repoURL: https://ray-project.github.io/kuberay-helm/
+      name: kuberay-operator
+      # semverConstraint: ^1.0.0
+      # discoveryLimit: 5
+  # - git: 
+  #     repoURL: https://github.com/han-steve/kargo-demo
+  #     branch: main
+  #     includePaths:
+  #     - apps/ray
+  # - image: 
+  #     repoURL: public.ecr.aws/nginx/nginx
+  #     semverConstraint: ^1.26.0
+  #     discoveryLimit: 5
+--- 
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata: 
+  name: dev
+  namespace: ray-infra
+spec:
+  requestedFreight:
+  - origin: 
+      kind: Warehouse
+      name: ray-infra
+    sources:
+      direct: true
+  promotionTemplate: 
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/han-steve/kargo-demo
+      - name: chartRepo
+        value: https://ray-project.github.io/kuberay-helm/
+      - name: srcPath
+        value: ./src
+      - name: outPath
+        value: ./out
+      - name: appPath
+        value: apps/ray
+      steps:
+      - uses: git-clone
+        config: 
+          repoURL: ${{ vars.gitopsRepo }}
+          checkout:
+          - branch: main
+            path: ${{ vars.srcPath }}
+          - branch: stage/${{ ctx.stage }}
+            create: true
+            path: ${{ vars.outPath }}
+      - uses: git-clear
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: kustomize-set-image
+        as: update-image
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
+          images: 
+          - image: ${{ vars.imageRepo }}
+            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+      - uses: kustomize-build
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
+          outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
+      - uses: git-commit
+        as: commit
+        config:
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+          messageFromSteps:
+          - update-image
+      - uses: git-push
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: argocd-update
+        config:
+          apps:
+          - name: ray-infra-${{ ctx.stage }}
+            sources:
+            - repoURL: ${{ vars.gitopsRepo }}
+              desiredRevision: ${{ outputs.commit.commit }}
+--- 
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata: 
+  name: stage
+  namespace: ray-infra
+spec:
+  requestedFreight:
+  - origin: 
+      kind: Warehouse
+      name: ray-infra
+    sources:
+      stages:
+      - dev
+  promotionTemplate: 
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/han-steve/kargo-demo
+      - name: chartRepo
+        value: https://ray-project.github.io/kuberay-helm/
+      - name: srcPath
+        value: ./src
+      - name: outPath
+        value: ./out
+      - name: appPath
+        value: apps/ray
+      steps:
+      - uses: git-clone
+        config: 
+          repoURL: ${{ vars.gitopsRepo }}
+          checkout:
+          - branch: main
+            path: ${{ vars.srcPath }}
+          - branch: stage/${{ ctx.stage }}
+            create: true
+            path: ${{ vars.outPath }}
+      - uses: git-clear
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: kustomize-set-image
+        as: update-image
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
+          images: 
+          - image: ${{ vars.imageRepo }}
+            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+      - uses: kustomize-build
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
+          outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
+      - uses: git-commit
+        as: commit
+        config:
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+          messageFromSteps:
+          - update-image
+      - uses: git-push
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: argocd-update
+        config:
+          apps:
+          - name: ray-infra-${{ ctx.stage }}
+            sources:
+            - repoURL: ${{ vars.gitopsRepo }}
+              desiredRevision: ${{ outputs.commit.commit }}
+--- 
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata: 
+  name: prod
+  namespace: ray-infra
+spec:
+  requestedFreight:
+  - origin: 
+      kind: Warehouse
+      name: ray-infra
+    sources:
+      stages:
+      - stage
+  promotionTemplate: 
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/han-steve/kargo-demo
+      - name: chartRepo
+        value: https://ray-project.github.io/kuberay-helm/
+      - name: srcPath
+        value: ./src
+      - name: outPath
+        value: ./out
+      - name: appPath
+        value: apps/ray
+      steps:
+      - uses: git-clone
+        config: 
+          repoURL: ${{ vars.gitopsRepo }}
+          checkout:
+          - branch: main
+            path: ${{ vars.srcPath }}
+          - branch: stage/${{ ctx.stage }}
+            create: true
+            path: ${{ vars.outPath }}
+      - uses: git-clear
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: kustomize-set-image
+        as: update-image
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
+          images: 
+          - image: ${{ vars.imageRepo }}
+            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+      - uses: kustomize-build
+        config: 
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
+          outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
+      - uses: git-commit
+        as: commit
+        config:
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+          messageFromSteps:
+          - update-image
+      - uses: git-push
+        config: 
+          path: ${{ vars.outPath }}/${{ vars.appPath }}
+      - uses: argocd-update
+        config:
+          apps:
+          - name: ray-infra-${{ ctx.stage }}
+            sources:
+            - repoURL: ${{ vars.gitopsRepo }}
+              desiredRevision: ${{ outputs.commit.commit }}

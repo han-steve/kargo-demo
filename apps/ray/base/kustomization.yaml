@@ -6,4 +6,4 @@ helmCharts:
   releaseName: kuberay-operator
   repo: https://ray-project.github.io/kuberay-helm/
   version: 1.1.0
-  includeCRDs: true
+  includeCRDs: false
