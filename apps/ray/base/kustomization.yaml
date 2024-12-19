@@ -12,5 +12,5 @@ helmCharts:
   valuesInline:
     resources:
       requests:
-        cpu: 50m
-        memory: 300Mi
+        cpu: 60m
+        memory: 400Mi
