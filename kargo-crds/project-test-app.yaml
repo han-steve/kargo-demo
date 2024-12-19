@@ -14,7 +14,7 @@ metadata:
 stringData: 
   repoURL: https://github.com/han-steve/kargo-demo
   username: han-steve
-  password: 
+  password: <fill in> 
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
