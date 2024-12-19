@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/name: kuberay-operator
     helm.sh/chart: kuberay-operator-1.2.0
   name: kuberay-operator
+  namespace: ray
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -389,7 +390,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: kargo
+  namespace: ray
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -400,6 +401,7 @@ metadata:
     app.kubernetes.io/name: kuberay-operator
     helm.sh/chart: kuberay-operator-1.2.0
   name: kuberay-operator-leader-election
+  namespace: ray
 rules:
 - apiGroups:
   - ""
@@ -446,6 +448,7 @@ metadata:
     app.kubernetes.io/name: kuberay-operator
     helm.sh/chart: kuberay-operator-1.2.0
   name: kuberay-operator-leader-election
+  namespace: ray
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -453,7 +456,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: kargo
+  namespace: ray
 ---
 apiVersion: v1
 kind: Service
@@ -464,6 +467,7 @@ metadata:
     app.kubernetes.io/name: kuberay-operator
     helm.sh/chart: kuberay-operator-1.2.0
   name: kuberay-operator
+  namespace: ray
 spec:
   ports:
   - name: http
@@ -484,6 +488,7 @@ metadata:
     app.kubernetes.io/name: kuberay-operator
     helm.sh/chart: kuberay-operator-1.2.0
   name: kuberay-operator
+  namespace: ray
 spec:
   replicas: 1
   selector:
