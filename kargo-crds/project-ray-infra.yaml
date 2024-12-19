@@ -226,10 +226,3 @@ spec:
         config:
           repoURL: ${{ vars.gitopsRepo }}
           prNumber: ${{ outputs['open-pr'].prNumber }}
-      - uses: argocd-update
-        config:
-          apps:
-          - name: ray-operator-${{ ctx.stage }}
-            sources:
-            - repoURL: ${{ vars.gitopsRepo }}
-              desiredRevision: ${{ outputs.commit.commit }}

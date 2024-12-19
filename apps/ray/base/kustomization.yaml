@@ -1,11 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+namespace: ray
 helmCharts:
 - name: kuberay-operator
   releaseName: kuberay-operator
   repo: https://ray-project.github.io/kuberay-helm/
-  version: 1.1.0
+  version: 1.2.0
   includeCRDs: false
   valuesInline:
     resources:
