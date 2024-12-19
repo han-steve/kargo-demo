@@ -63,16 +63,16 @@ spec:
       - uses: git-clear
         config: 
           path: ${{ vars.outPath }}/${{ vars.appPath }}
-      - uses: kustomize-set-image
-        as: update-image
+      - uses: yaml-update
+        as: update-chart
         config: 
-          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base
-          images: 
-          - image: ${{ vars.imageRepo }}
-            tag: ${{ imageFrom(vars.imageRepo).Tag }}
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/base/kustomization.yaml
+          updates:
+          - key: helmCharts.0.version
+            value: ${{ chartFrom(vars.chartRepo, "kuberay-operator").Version }}
       - uses: kustomize-build
         config: 
-          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/${{ ctx.stage }}
+          path: ${{ vars.srcPath }}/${{ vars.appPath }}/stages/dev
           outPath: ${{ vars.outPath }}/${{ vars.appPath }}/manifests.yaml
       - uses: git-commit
         as: commit
