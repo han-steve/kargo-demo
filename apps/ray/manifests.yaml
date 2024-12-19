@@ -390,7 +390,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: kargo
+  namespace: ray
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -456,7 +456,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: kargo
+  namespace: ray
 ---
 apiVersion: v1
 kind: Service
