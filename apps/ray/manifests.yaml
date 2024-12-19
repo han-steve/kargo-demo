@@ -5,7 +5,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator
   namespace: ray
 ---
@@ -16,7 +16,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: rayjob-editor-role
 rules:
 - apiGroups:
@@ -45,7 +45,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: rayjob-viewer-role
 rules:
 - apiGroups:
@@ -114,7 +114,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator
 rules:
 - apiGroups:
@@ -381,7 +381,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -390,7 +390,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: ray
+  namespace: kargo
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -399,7 +399,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator-leader-election
   namespace: ray
 rules:
@@ -446,7 +446,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator-leader-election
   namespace: ray
 roleRef:
@@ -456,7 +456,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kuberay-operator
-  namespace: ray
+  namespace: kargo
 ---
 apiVersion: v1
 kind: Service
@@ -465,7 +465,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator
   namespace: ray
 spec:
@@ -486,7 +486,7 @@ metadata:
     app.kubernetes.io/instance: kuberay-operator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: kuberay-operator
-    helm.sh/chart: kuberay-operator-1.2.0
+    helm.sh/chart: kuberay-operator-1.2.2
   name: kuberay-operator
   namespace: ray
 spec:
@@ -511,7 +511,7 @@ spec:
         command:
         - /manager
         env: null
-        image: quay.io/kuberay/operator:v1.2.0
+        image: quay.io/kuberay/operator:v1.2.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -537,8 +537,8 @@ spec:
             cpu: 100m
             memory: 512Mi
           requests:
-            cpu: 50m
-            memory: 300Mi
+            cpu: 60m
+            memory: 400Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
